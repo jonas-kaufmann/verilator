@@ -548,7 +548,13 @@ void VerilatedSaif::popPrefix() {
 void VerilatedSaif::declare(const uint32_t code, uint32_t fidx, const char* name,
                             const char* /*wirep*/, const bool array, const int arraynum,
                             const bool /*bussed*/, const int msb, const int lsb) {
-    assert(m_activityAccumulators.size() > fidx);
+    if (fidx >= m_activityAccumulators.size()) {
+        uint32_t need = fidx + 1 - m_activityAccumulators.size();
+        for (int i = 0; i < need; ++i) {
+            m_activityAccumulators.emplace_back(
+                std::make_unique<VerilatedSaifActivityAccumulator>());
+        }
+    }
     VerilatedSaifActivityAccumulator& accumulator = *m_activityAccumulators.at(fidx);
 
     const int bits = ((msb > lsb) ? (msb - lsb) : (lsb - msb)) + 1;
@@ -616,8 +622,10 @@ void VerilatedSaif::declDoubleArray(const uint32_t code, const uint32_t fidx, co
 //=============================================================================
 // Get/commit trace buffer
 
-VerilatedSaif::Buffer* VerilatedSaif::getTraceBuffer(uint32_t /*fidx*/) {
-    return new Buffer{*this};
+VerilatedSaif::Buffer* VerilatedSaif::getTraceBuffer(uint32_t fidx) {
+    Buffer* buffer = new Buffer{*this};
+    buffer->m_fidx = fidx;
+    return buffer;
 }
 
 void VerilatedSaif::commitTraceBuffer(VerilatedSaif::Buffer* bufp) { delete bufp; }
