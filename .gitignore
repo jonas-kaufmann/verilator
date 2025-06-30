@@ -44,6 +44,7 @@ verilator_coverage_bin*
 **/obj_dir/*
 /.vscode/
 /.idea/
+/.cache/
 /cmake-build-*/
 /obj_coverage/
 /test_regress/snapshot/
