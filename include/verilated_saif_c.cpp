@@ -322,7 +322,10 @@ void VerilatedSaif::initializeSaifFileContents() {
     printStr(")\n");
 }
 
-void VerilatedSaif::emitTimeChange(uint64_t timeui) { m_time = timeui; }
+void VerilatedSaif::emitTimeChange(uint64_t timeui) {
+    m_time = timeui;
+    if (VL_UNLIKELY(!m_trace_start)) { m_trace_start = std::make_unique<uint64_t>(timeui); }
+}
 
 VerilatedSaif::~VerilatedSaif() { close(); }
 
@@ -343,7 +346,7 @@ void VerilatedSaif::close() VL_MT_SAFE_EXCLUDES(m_mutex) {
 
 void VerilatedSaif::finalizeSaifFileContents() {
     printStr("(DURATION ");
-    printStr(std::to_string(currentTime()));
+    printStr(std::to_string(traceDuration()));
     printStr(")\n");
 
     incrementIndent();
@@ -434,7 +437,7 @@ bool VerilatedSaif::printActivityStats(VerilatedSaifActivityVar& activity,
 
         // We only have two-value logic so TZ, TX and TB will always be 0
         printStr(" (T0 ");
-        printStr(std::to_string(currentTime() - bit.highTime()));
+        printStr(std::to_string(traceDuration() - bit.highTime()));
         printStr(") (T1 ");
         printStr(std::to_string(bit.highTime()));
         printStr(") (TZ 0) (TX 0) (TB 0) (TC ");
@@ -449,6 +452,7 @@ bool VerilatedSaif::printActivityStats(VerilatedSaifActivityVar& activity,
 
 void VerilatedSaif::clearCurrentlyCollectedData() {
     m_currentScope = nullptr;
+    m_trace_start = nullptr;
     m_scopes.clear();
     m_activityAccumulators.clear();
 }

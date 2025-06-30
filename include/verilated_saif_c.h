@@ -53,6 +53,7 @@ private:
     bool m_isOpen = false;  // True indicates open file
     std::string m_filename;  // Filename we're writing to (if open)
     std::string m_buffer;  // Write data buffer
+    std::unique_ptr<uint64_t> m_trace_start;
 
     int m_indent = 0;  // Indentation size in spaces
     static constexpr size_t WRITE_BUFFER_SIZE = 256 * 1024;  // Bytes between write calls
@@ -72,6 +73,9 @@ private:
 
     // METHODS
     VL_ATTR_ALWINLINE uint64_t currentTime() const { return m_time; }
+    VL_ATTR_ALWINLINE uint64_t traceDuration() const {
+        return currentTime() - (m_trace_start ? *m_trace_start : 0);
+    }
 
     void initializeSaifFileContents();
     void finalizeSaifFileContents();
