@@ -43,6 +43,7 @@ verilator_coverage_bin*
 **/obj_dir/*
 /.vscode/
 /.idea/
+/.cache/
 /cmake-build-*/
 /test_regress/snapshot/
 xmverilog.*
