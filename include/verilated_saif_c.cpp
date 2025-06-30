@@ -300,7 +300,22 @@ void VerilatedSaif::initializeSaifFileContents() {
     printStr("(SAIFILE\n");
     printStr("(SAIFVERSION \"2.0\")\n");
     printStr("(DIRECTION \"backward\")\n");
+    printStr("(DESIGN )\n");
+
+    printStr("(DATE ");
+    // Format current time like this: "Tue Dec 10 21:16:48 2024"
+    std::time_t now = std::time(nullptr);
+    std::tm* localTime = std::localtime(&now);
+    char formattedTime[100];
+    std::strftime(formattedTime, sizeof(formattedTime), "\"%a %b %d %H:%M:%S %Y\"", localTime);
+    printStr(formattedTime);
+    printStr(")\n");
+
+    printStr("(VENDOR \"Veripool\")\n");
     printStr("(PROGRAM_NAME \"Verilator\")\n");
+    printStr("(VERSION \"");
+    printStr(Verilated::productVersion());
+    printStr("\")\n");
     printStr("(DIVIDER / )\n");
     printStr("(TIMESCALE ");
     printStr(timeResStr());
