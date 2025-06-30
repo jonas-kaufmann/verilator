@@ -277,9 +277,7 @@ void VerilatedSaifActivityAccumulator::declare(uint32_t code, const std::string&
 //=============================================================================
 // VerilatedSaif implementation
 
-VerilatedSaif::VerilatedSaif(void* filep) {
-    m_activityAccumulators.emplace_back(std::make_unique<VerilatedSaifActivityAccumulator>());
-}
+VerilatedSaif::VerilatedSaif(void* filep) {}
 
 void VerilatedSaif::open(const char* filename) VL_MT_SAFE_EXCLUDES(m_mutex) {
     const VerilatedLockGuard lock{m_mutex};
@@ -380,8 +378,8 @@ void VerilatedSaif::closeInstanceScope() {
 void VerilatedSaif::printScopeActivities(const VerilatedSaifActivityScope& scope) {
     bool anyNetWritten = false;
 
-    for (auto& accumulator : m_activityAccumulators) {
-        anyNetWritten |= printScopeActivitiesFromAccumulatorIfPresent(scope.path(), *accumulator,
+    for (auto& pair : m_activityAccumulators) {
+        anyNetWritten |= printScopeActivitiesFromAccumulatorIfPresent(scope.path(), *pair.second,
                                                                       anyNetWritten);
     }
 
@@ -549,8 +547,13 @@ void VerilatedSaif::popPrefix() {
 void VerilatedSaif::declare(const uint32_t code, uint32_t fidx, const char* name,
                             const char* wirep, const bool array, const int arraynum,
                             const bool bussed, const int msb, const int lsb) {
-    assert(m_activityAccumulators.size() > fidx);
-    VerilatedSaifActivityAccumulator& accumulator = *m_activityAccumulators.at(fidx);
+    auto it_accumulator = m_activityAccumulators.find(fidx);
+    if (it_accumulator == m_activityAccumulators.end()) {
+        it_accumulator = m_activityAccumulators
+                             .emplace(fidx, std::make_unique<VerilatedSaifActivityAccumulator>())
+                             .first;
+    }
+    VerilatedSaifActivityAccumulator& accumulator = *it_accumulator->second;
 
     const int bits = ((msb > lsb) ? (msb - lsb) : (lsb - msb)) + 1;
 
@@ -606,7 +609,11 @@ void VerilatedSaif::declDouble(const uint32_t code, const uint32_t fidx, const c
 //=============================================================================
 // Get/commit trace buffer
 
-VerilatedSaif::Buffer* VerilatedSaif::getTraceBuffer(uint32_t fidx) { return new Buffer{*this}; }
+VerilatedSaif::Buffer* VerilatedSaif::getTraceBuffer(uint32_t fidx) {
+    Buffer* buffer = new Buffer{*this};
+    buffer->m_fidx = fidx;
+    return buffer;
+}
 
 void VerilatedSaif::commitTraceBuffer(VerilatedSaif::Buffer* bufp) { delete bufp; }
 

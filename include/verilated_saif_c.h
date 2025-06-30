@@ -63,7 +63,8 @@ private:
     // Array of declared scopes
     std::vector<std::unique_ptr<VerilatedSaifActivityScope>> m_scopes{};
     // Activity accumulators used to store variables statistics over simulation time
-    std::vector<std::unique_ptr<VerilatedSaifActivityAccumulator>> m_activityAccumulators{};
+    std::unordered_map<uint32_t, std::unique_ptr<VerilatedSaifActivityAccumulator>>
+        m_activityAccumulators{};
     // Total time of the currently traced simulation
     uint64_t m_time = 0;
 
