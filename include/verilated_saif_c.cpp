@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cctype>
 #include <fcntl.h>
 #include <string>
 
@@ -58,6 +59,23 @@
 #include "verilated_trace_imp.h"
 #undef VL_SUB_T
 #undef VL_BUF_T
+
+namespace {
+
+std::string escapeSaifIdentifier(const std::string& raw) {
+    std::string escaped;
+    escaped.reserve(raw.size() * 2);
+
+    for (const char ch : raw) {
+        const bool needsEscape = (ch == '(' || ch == ')' || ch == '[' || ch == ']');
+        if (needsEscape) { escaped += '\\'; }
+        escaped += ch;
+    }
+
+    return escaped;
+}
+
+}  // namespace
 
 //=============================================================================
 // VerilatedSaifActivityBit
@@ -364,7 +382,7 @@ void VerilatedSaif::recursivelyPrintScopes(const VerilatedSaifActivityScope& sco
 void VerilatedSaif::openInstanceScope(const std::string& instanceName) {
     printIndent();
     printStr("(INSTANCE ");
-    printStr(instanceName);
+    printStr(escapeSaifIdentifier(instanceName));
     printStr("\n");
     incrementIndent();
 }
@@ -425,7 +443,7 @@ bool VerilatedSaif::printActivityStats(VerilatedSaifActivityVar& activity,
 
         printIndent();
         printStr("(");
-        printStr(activityName);
+        printStr(escapeSaifIdentifier(activityName));
         if (activity.width() > 1) {
             printStr("\\[");
             printStr(std::to_string(i));
