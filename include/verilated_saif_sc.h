@@ -47,6 +47,10 @@ public:
         VerilatedScTraceBase::checkScElaborationDone();
         VerilatedSaifC::open(filename);
     }
+    void open(const char* filename, uint64_t start_time) override VL_MT_SAFE {
+        VerilatedScTraceBase::checkScElaborationDone();
+        VerilatedSaifC::open(filename, start_time);
+    }
 
     // METHODS - for SC kernel
     // Called from SystemC kernel

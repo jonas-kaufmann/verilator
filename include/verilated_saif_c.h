@@ -134,6 +134,9 @@ public:
     // METHODS - All must be thread safe
     // Open the file; call isOpen() to see if errors
     void open(const char* filename) VL_MT_SAFE_EXCLUDES(m_mutex);
+    // Same as VerilatedSaif::open() but allows setting start_time to properly support trace
+    // starting at non-0 time
+    void open(const char* filename, uint64_t start_time) VL_MT_SAFE_EXCLUDES(m_mutex);
     // Close the file
     void close() VL_MT_SAFE_EXCLUDES(m_mutex);
     // Flush any remaining data to this file
@@ -277,6 +280,9 @@ public:
     // This includes a complete header dump each time it is called,
     // just as if this object was deleted and reconstructed.
     virtual void open(const char* filename) VL_MT_SAFE { m_sptrace.open(filename); }
+    virtual void open(const char* filename, uint64_t start_time) VL_MT_SAFE {
+        m_sptrace.open(filename, start_time);
+    }
 
     void rolloverSize(size_t size) VL_MT_SAFE {}  // NOP
 
