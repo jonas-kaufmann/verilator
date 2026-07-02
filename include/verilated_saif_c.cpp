@@ -381,6 +381,10 @@ void VerilatedSaif::finalizeSaifFileContents() {
     printStr(std::to_string(currentTime() - m_startTime));
     printStr(")\n");
 
+    printStr("// (START_TIME ");
+    printStr(std::to_string(m_startTime));
+    printStr(")\n");
+
     incrementIndent();
     for (const auto& topScope : m_scopes) recursivelyPrintScopes(*topScope);
     decrementIndent();
