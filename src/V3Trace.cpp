@@ -951,6 +951,8 @@ class TraceVisitor final : public VNVisitor {
 
                 // Add TraceInc nodes
                 FileLine* const flp = declp->fileline();
+                // Set the function index of the decl
+                declp->fidx(topFuncNum);
                 if (declp->dtypeCallp()) {
                     DtypeFuncs funcs = createNonConstDtypeTraceFunctions(declp);
                     AstNodeExpr* argsp = nullptr;
@@ -975,9 +977,6 @@ class TraceVisitor final : public VNVisitor {
                     AstTraceInc* const incChgp
                         = new AstTraceInc{flp, declp, VTraceType::CHANGE, baseCode};
                     ifp->addThensp(incChgp);
-
-                    // Set the function index of the decl
-                    declp->fidx(topFuncNum);
 
                     // Track splitting due to size
                     UASSERT_OBJ(incFulp->nodeCount() == incChgp->nodeCount(), declp,
