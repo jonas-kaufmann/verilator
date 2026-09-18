@@ -253,6 +253,12 @@ class LinkCellsVisitor final : public VNVisitor {
             = new CellEdge{&m_graph, fromp, top, weight, cuttable, cellp};
         UINFO(9, "    cellEdge " << edgep << " " << fromp->name() << " -> " << top->name());
     }
+    static bool followNonLibraryEdge(const V3GraphEdge* edgep) {
+        // LibraryVertex edges only prevent explicitly non-top modules from being selected as
+        // additional tops.  They are not instance edges, so must not make every such module
+        // appear one level below the root when computing the minimum trace/public depth.
+        return !edgep->fromp()->is<LibraryVertex>();
+    }
     void insertModInLib(const string& name, const string& libname, AstNodeModule* nodep) {
         // Be able to find the module under it's library using the name it was given
         VSymEnt* libSymp = m_mods.rootp()->findIdFlat(libname);
@@ -420,7 +426,7 @@ class LinkCellsVisitor final : public VNVisitor {
                 vmodp->level(vvertexp->rank());
             }
         }
-        m_graph.rankMin();
+        m_graph.rankMin(&followNonLibraryEdge);
         for (V3GraphVertex& vtx : m_graph.vertices()) {
             if (const LinkCellsVertex* const vvertexp = vtx.cast<LinkCellsVertex>()) {
                 // +1 so we leave level 1 for the new wrapper we'll make in a moment

@@ -28,6 +28,8 @@ module sub1 (
     input int cyc
 );
 
+  wire integer value_in_sub1 = cyc;  // Magic name checked in .py file
+
   sub2 sub2a (.*);
   sub2 sub2b (.*);
   sub2 sub2c (.*);

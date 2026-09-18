@@ -11,11 +11,12 @@ import vltest_bootstrap
 
 test.scenarios('vlt_all')
 
-test.compile(v_flags2=["--trace-vcd --trace-depth 1"])
+test.compile(v_flags2=["--trace-vcd --trace-depth 2"])
 
 test.execute()
 
 test.file_grep(test.trace_filename, r'value_at_top')
-test.file_grep_not(test.trace_filename, r' value_in_sub')
+test.file_grep(test.trace_filename, r'value_in_sub1')
+test.file_grep_not(test.trace_filename, r' value_in_sub\s')
 
 test.passes()
